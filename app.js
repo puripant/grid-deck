@@ -12,9 +12,9 @@ const DATA_URL =
   'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/screen-grid/uber-pickup-locations.json'; // eslint-disable-line
 
 export const INITIAL_VIEW_STATE = {
-  longitude: -73.75,
-  latitude: 40.73,
-  zoom: 9.6,
+  longitude: 100.60,
+  latitude: 13.75,
+  zoom: 9.0,
   maxZoom: 16,
   pitch: 0,
   bearing: 0
