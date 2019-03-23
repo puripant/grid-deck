@@ -5,11 +5,15 @@
   "scripts": {
     "start-local": "webpack-dev-server --env.local --progress --hot --open",
     "start": "webpack-dev-server --progress --hot --open",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d dist"
   },
+  "homepage": "http://puripant.ruchikachorn.com/grid-deck/dist/",
   "dependencies": {
     "deck.gl": "^7.0.0-alpha",
     "dotenv": "^7.0.0",
+    "gh-pages": "^2.0.1",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",
     "react-map-gl": "^3.3.0"
