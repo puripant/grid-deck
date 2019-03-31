@@ -4,6 +4,7 @@
 // avoid destructuring for older Node version support
 const resolve = require('path').resolve;
 const webpack = require('webpack');
+// const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const CONFIG = {
@@ -28,13 +29,29 @@ const CONFIG = {
         options: {
           objectAssign: 'Object.assign'
         }
-      }
+      },
+      // {
+      //   test: /\.css$/,
+      //   exclude: /(node_modules)/,
+      //   use: [
+      //     { loader: 'style-loader' },
+      //     { loader: 'css-loader' },
+      //   ],
+      // },
+      // {
+      //   test: /\.png$/,
+      //   exclude: /(node_modules)/,
+      //   use: [
+      //     { loader: 'file-loader' },
+      //   ],
+      // },
     ]
   },
 
   // Optional: Enables reading mapbox token from environment variable
   plugins: [
     new webpack.EnvironmentPlugin(['MapboxAccessToken']),
+    // new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
     })

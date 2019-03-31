@@ -7,9 +7,12 @@ import {isWebGL2} from 'luma.gl';
 // Set your mapbox token here
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
-// Source data CSV
-const DATA_URL =
-  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/screen-grid/uber-pickup-locations.json'; // eslint-disable-line
+// Source data
+let random_bangkok_points = [];
+for(let i = 0; i < 100; i++) {
+  random_bangkok_points.push([100.50 + Math.random()*0.1, 13.70 + Math.random()*0.1, 1]);
+}
+const DATA = random_bangkok_points;
 
 export const INITIAL_VIEW_STATE = {
   longitude: 100.60,
@@ -31,7 +34,7 @@ const colorRange = [
 
 export class App extends Component {
   _renderLayers() {
-    const {data = DATA_URL, cellSize = 20, gpuAggregation = true, aggregation = 'Sum'} = this.props;
+    const {data = DATA, cellSize = 20, gpuAggregation = true, aggregation = 'Sum'} = this.props;
 
     return [
       new ScreenGridLayer({
