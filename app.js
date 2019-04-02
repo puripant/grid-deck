@@ -7,10 +7,10 @@ import {isWebGL2} from 'luma.gl';
 import { SketchPicker } from 'react-color';
 import { AST_LabelRef } from 'terser';
 
-// Set your mapbox token here
+// Mapbox token
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
-// Source data
+// Data
 let random_bangkok_points = [];
 for(let i = 0; i < 1000; i++) {
   random_bangkok_points.push([100.50 + Math.random()*0.1, 13.70 + Math.random()*0.1, 1]);
@@ -21,20 +21,12 @@ export const INITIAL_VIEW_STATE = {
   longitude: 100.55,
   latitude: 13.75,
   zoom: 9.0,
-  minZoom: 10,
-  maxZoom: 12,
+  minZoom: 9,
+  maxZoom: 20,
   pitch: 0,
   bearing: 0
 };
 
-// function hexToRGB(hex) {
-//   return [
-//     parseInt(hex.substring(1, 3), 16),
-//     parseInt(hex.substring(3, 5), 16),
-//     parseInt(hex.substring(5, 7), 16),
-//     255
-//   ];
-// }
 function interpolateColors(start, end, num) {
   let result = [];
   for(let i = 0; i < num; i++) {
@@ -46,20 +38,6 @@ function interpolateColors(start, end, num) {
   }
   return result;
 }
-// function sixColorsFromInputs() {
-//   let colors = interpolateColors(
-//     hexToRGB(document.getElementById("color-min").value),
-//     hexToRGB(document.getElementById("color-max").value),
-//     6
-//   )
-//   // this.setState({
-//   //   colorRange: colors
-//   // })
-//   return colors;
-// }
-// let sixColors = sixColorsFromInputs();
-// document.getElementById("color-min").oninput = sixColorsFromInputs;
-// document.getElementById("color-max").oninput = sixColorsFromInputs;
 
 export class App extends Component {
   constructor() {
@@ -79,36 +57,26 @@ export class App extends Component {
     };
 
     this.handleChange0 = (color) => {
-      let rgba = color.rgb;
-      rgba.a *= 255;
-      this.setState({ color0: rgba });
+      this.setState({ color0: color.rgb });
     };
     this.handleChange1 = (color) => {
-      let rgba = color.rgb;
-      rgba.a *= 255;
-      this.setState({ color1: rgba });
+      this.setState({ color1: color.rgb });
     };
 
     this.state = {
       displayColorPicker0: false,
-      color0: {
-        r: 241,
-        g: 112,
-        b: 19,
-        a: 0,
-      },
+      color0: { r: 241, g: 112, b: 19, a: 0 },
       displayColorPicker1: false,
-      color1: {
-        r: 241,
-        g: 112,
-        b: 19,
-        a: 255,
-      },
+      color1: { r: 241, g: 112, b: 19, a: 1 },
     };
   }
 
   _renderLayers() {
     const {data = DATA, cellSize = 20, colorRange, gpuAggregation = true, aggregation = 'Sum'} = this.props;
+    let color0 = Object.values(this.state.color0);
+    color0[3] *= 255;
+    let color1 = Object.values(this.state.color1);
+    color1[3] *= 255;
 
     return [
       new ScreenGridLayer({
@@ -117,11 +85,7 @@ export class App extends Component {
         getPosition: d => [d[0], d[1]],
         getWeight: d => d[2],
         cellSizePixels: cellSize,
-        colorRange: interpolateColors(
-          Object.values(this.state.color0),
-          Object.values(this.state.color1),
-          6
-        ),
+        colorRange: interpolateColors(color0, color1, 6),
         gpuAggregation,
         aggregation
       })
