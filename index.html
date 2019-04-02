@@ -8,15 +8,16 @@
     body {
       margin: 0;
       font-family: sans-serif;
+      font-size: 12px;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
     }
+
     .tooltip {
       pointer-events: none;
       position: absolute;
       z-index: 9;
-      font-size: 12px;
       padding: 8px;
       background: #000;
       color: #fff;
@@ -24,9 +25,60 @@
       max-height: 240px;
       overflow-y: hidden;
     }
+
+    #control-panel {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      top: 0;
+      left: 0;
+      margin: 20px;
+      padding: 20px;
+      z-index: 1;
+    }
+    #control-panel label {
+      display: inline-block;
+      width: 120px;
+      vertical-align: middle;
+    }
+    #control-panel .color-picker {
+      vertical-align: middle;
+      padding: 5px;
+      background: #fff;
+      border-radius: 1px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.1);
+      display: inline-block;
+      cursor: pointer;
+    }
+    .color-picker .color-picker-preview {
+      width: 36px;
+      height: 14px;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    #control-panel .popover {
+      position: absolute;
+      z-index: 2;
+    }
+    #control-panel .popover .cover {
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+    }
   </style>
 </head>
 <body>
+  <!-- <div id="control-panel">
+    <div>
+      <label for="color-min">Color for min value: </label>
+      <input name="color-min" id="color-min" type="color" value="#e66465"></input>
+    </div>
+    <div>
+      <label for="color-max">Color for max value: </label>
+      <input name="color-max" id="color-max" type="color" value="#f6b73c"></input>
+    </div>
+  </div> -->
   <div id="app"></div>
 </body>
 
