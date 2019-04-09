@@ -12,7 +12,7 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
 // Data
 let random_bangkok_points = [];
-for(let i = 0; i < 1000; i++) {
+for(let i = 0; i < 50000; i++) {
   random_bangkok_points.push([100.50 + Math.random()*0.1, 13.70 + Math.random()*0.1, 1]);
 }
 const DATA = random_bangkok_points;
@@ -20,24 +20,36 @@ const DATA = random_bangkok_points;
 export const INITIAL_VIEW_STATE = {
   longitude: 100.55,
   latitude: 13.75,
-  zoom: 9.0,
+  zoom: 11.0,
   minZoom: 9,
   maxZoom: 20,
   pitch: 0,
   bearing: 0
 };
 
-function interpolateColors(start, end, num) { // start & end are RGBA arrays
-  // TODO interpolate past white
+const white = [255, 255, 255, 100];
+function interpolateToWhite(start, num, reversed) {
   let result = [];
-  for(let i = 0; i < num; i++) {
+  for (let i = 0; i < num; i++) {
     let color = [];
-    for(let j = 0; j < start.length; j++) {
-      color.push((start[j] * (num - i - 1) / (num - 1)) + (end[j] * i / (num - 1)));
+    for (let j = 0; j < start.length; j++) {
+      color.push((start[j] * (num - i - 1) / (num - 1)) + (white[j] * i / (num - 1)));
     }
     result.push(color);
   }
-  return result;
+  return reversed ? result.reverse() : result;
+}
+function interpolateColors(start, end, num) { // start & end are RGBA arrays
+  return interpolateToWhite(start, num/2, false).concat(interpolateToWhite(end, num/2, true));
+  // let result = [];
+  // for(let i = 0; i < num; i++) {
+  //   let color = [];
+  //   for(let j = 0; j < start.length; j++) {
+  //     color.push((start[j] * (num - i - 1) / (num - 1)) + (end[j] * i / (num - 1)));
+  //   }
+  //   result.push(color);
+  // }
+  // return result;
 }
 
 export class App extends Component {
@@ -69,6 +81,7 @@ export class App extends Component {
       color0: { r: 0, g: 112, b: 19, a: 1 },
       displayColorPicker1: false,
       color1: { r: 241, g: 112, b: 19, a: 1 },
+      tooltipObject: { count: 0 },
     };
   }
 
@@ -83,12 +96,16 @@ export class App extends Component {
       new GridLayer({
         id: 'grid',
         data,
-        // pickable: true,
+        pickable: true,
         cellSize: cellSize,
         extruded: false,
         getPosition: d => [d[0], d[1]],
-        // getColorValue: points => points.length,
-        colorRange: interpolateColors(color0, color1, 6)
+        colorRange: interpolateColors(color0, color1, 8),
+        onHover: d => {
+          this.setState({
+            tooltipObject: d.object,
+          })
+        }
       })
     ];
   }
@@ -112,7 +129,7 @@ export class App extends Component {
         },
         color1: {
           background: `rgba(${this.state.color1.r}, ${this.state.color1.g}, ${this.state.color1.b}, ${this.state.color1.a})`,
-        }
+        },
       },
     });
 
@@ -138,6 +155,9 @@ export class App extends Component {
               <div className="cover" onClick={this.handleClose} />
               <SketchPicker color={this.state.color1} onChange={this.handleChange1} />
             </div> : null}
+          </div>
+          <div>
+            The number of points: {this.state.tooltipObject ? this.state.tooltipObject.count : 0}
           </div>
         </div>
         <DeckGL
