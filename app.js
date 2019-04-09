@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import reactCSS from 'reactcss'
 import {render} from 'react-dom';
 import {StaticMap} from 'react-map-gl';
-import DeckGL, {ScreenGridLayer} from 'deck.gl';
+import DeckGL, {GridLayer} from 'deck.gl';
 import {isWebGL2} from 'luma.gl';
 import { SketchPicker } from 'react-color';
 import { AST_LabelRef } from 'terser';
@@ -27,12 +27,13 @@ export const INITIAL_VIEW_STATE = {
   bearing: 0
 };
 
-function interpolateColors(start, end, num) {
+function interpolateColors(start, end, num) { // start & end are RGBA arrays
+  // TODO interpolate past white
   let result = [];
   for(let i = 0; i < num; i++) {
-    let color = {};
-    for(let key in start) {
-      color[key] = (start[key] * (num - i - 1) / (num - 1)) + (end[key] * i / (num - 1));
+    let color = [];
+    for(let j = 0; j < start.length; j++) {
+      color.push((start[j] * (num - i - 1) / (num - 1)) + (end[j] * i / (num - 1)));
     }
     result.push(color);
   }
@@ -65,29 +66,29 @@ export class App extends Component {
 
     this.state = {
       displayColorPicker0: false,
-      color0: { r: 241, g: 112, b: 19, a: 0 },
+      color0: { r: 0, g: 112, b: 19, a: 1 },
       displayColorPicker1: false,
       color1: { r: 241, g: 112, b: 19, a: 1 },
     };
   }
 
   _renderLayers() {
-    const {data = DATA, cellSize = 20, colorRange, gpuAggregation = true, aggregation = 'Sum'} = this.props;
+    const {data = DATA, cellSize = 250, colorRange} = this.props;
     let color0 = Object.values(this.state.color0);
     color0[3] *= 255;
     let color1 = Object.values(this.state.color1);
     color1[3] *= 255;
 
     return [
-      new ScreenGridLayer({
+      new GridLayer({
         id: 'grid',
         data,
+        // pickable: true,
+        cellSize: cellSize,
+        extruded: false,
         getPosition: d => [d[0], d[1]],
-        getWeight: d => d[2],
-        cellSizePixels: cellSize,
-        colorRange: interpolateColors(color0, color1, 6),
-        gpuAggregation,
-        aggregation
+        // getColorValue: points => points.length,
+        colorRange: interpolateColors(color0, color1, 6)
       })
     ];
   }
@@ -149,7 +150,7 @@ export class App extends Component {
           {baseMap && (
             <StaticMap
               reuseMaps
-              mapStyle="mapbox://styles/mapbox/dark-v9"
+              mapStyle="mapbox://styles/itwasup/cjttj9web0vp71fql3gcugusz"
               preventStyleDiffing={true}
               mapboxApiAccessToken={MAPBOX_TOKEN}
             />

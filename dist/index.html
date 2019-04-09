@@ -66,19 +66,16 @@
       bottom: 0px;
       left: 0px;
     }
+
+    #deckgl-wrapper {
+      isolation: isolate;
+    }
+    #deckgl-wrapper canvas {
+      mix-blend-mode: lighten;
+    }
   </style>
 </head>
 <body>
-  <!-- <div id="control-panel">
-    <div>
-      <label for="color-min">Color for min value: </label>
-      <input name="color-min" id="color-min" type="color" value="#e66465"></input>
-    </div>
-    <div>
-      <label for="color-max">Color for max value: </label>
-      <input name="color-max" id="color-max" type="color" value="#f6b73c"></input>
-    </div>
-  </div> -->
   <div id="app"></div>
 <script type="text/javascript" src="app.js"></script></body>
 
