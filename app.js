@@ -2,20 +2,23 @@ import React, {Component} from 'react';
 import reactCSS from 'reactcss'
 import {render} from 'react-dom';
 import {StaticMap} from 'react-map-gl';
-import DeckGL, {GridLayer} from 'deck.gl';
+import DeckGL, {GridLayer, IconLayer} from 'deck.gl';
 import {isWebGL2} from 'luma.gl';
-import { SketchPicker } from 'react-color';
-import { AST_LabelRef } from 'terser';
+import {SketchPicker} from 'react-color';
+import {AST_LabelRef} from 'terser';
 
 // Mapbox token
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
 // Data
-let random_bangkok_points = [];
+let many_random_points = [];
 for(let i = 0; i < 50000; i++) {
-  random_bangkok_points.push([100.50 + Math.random()*0.1, 13.70 + Math.random()*0.1, 1]);
+  many_random_points.push([100.50 + Math.random()*0.1, 13.70 + Math.random()*0.1, 1]);
 }
-const DATA = random_bangkok_points;
+let few_random_points = [];
+for (let i = 0; i < 100; i++) {
+  few_random_points.push([100.50 + Math.random() * 0.1, 13.70 + Math.random() * 0.1, 1]);
+}
 
 export const INITIAL_VIEW_STATE = {
   longitude: 100.55,
@@ -81,12 +84,16 @@ export class App extends Component {
       color0: { r: 0, g: 112, b: 19, a: 1 },
       displayColorPicker1: false,
       color1: { r: 241, g: 112, b: 19, a: 1 },
-      tooltipObject: { count: 0 },
+      tooltipText: '',
     };
   }
 
   _renderLayers() {
-    const {data = DATA, cellSize = 250, colorRange} = this.props;
+    const {
+      cellSize = 250,
+      iconMapping = 'data/location-icon-mapping.json',
+      iconAtlas = 'data/location-icon-atlas.png',
+    } = this.props;
     let color0 = Object.values(this.state.color0);
     color0[3] *= 255;
     let color1 = Object.values(this.state.color1);
@@ -95,15 +102,30 @@ export class App extends Component {
     return [
       new GridLayer({
         id: 'grid',
-        data,
+        data: many_random_points,
         pickable: true,
         cellSize: cellSize,
         extruded: false,
-        getPosition: d => [d[0], d[1]],
+        getPosition: d => d,
         colorRange: interpolateColors(color0, color1, 8),
         onHover: d => {
           this.setState({
-            tooltipObject: d.object,
+            tooltipText: d.object.count,
+          })
+        }
+      }),
+      new IconLayer({
+        id: 'icon',
+        data: few_random_points,
+        pickable: true,
+        iconAtlas,
+        iconMapping,
+        getIcon: d => 'marker-1',
+        getPosition: d => d,
+        getSize: d => 50,
+        onHover: d => {
+          this.setState({
+            tooltipText: `${d.object[0].toFixed(2)}, ${d.object[1].toFixed(2)}`,
           })
         }
       })
@@ -157,7 +179,7 @@ export class App extends Component {
             </div> : null}
           </div>
           <div>
-            The number of points: {this.state.tooltipObject ? this.state.tooltipObject.count : 0}
+            Current value: {this.state.tooltipText ? this.state.tooltipText : ''}
           </div>
         </div>
         <DeckGL
