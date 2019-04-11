@@ -1,10 +1,11 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import reactCSS from 'reactcss'
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
-import DeckGL, {GridLayer, IconLayer} from 'deck.gl';
-import {isWebGL2} from 'luma.gl';
-import {SketchPicker} from 'react-color';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
+import DeckGL, { GridLayer, IconLayer } from 'deck.gl';
+import { isWebGL2 } from 'luma.gl';
+import { SketchPicker } from 'react-color';
+import { Checkbox } from 'semantic-ui-react'
 
 // Mapbox token
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
@@ -58,6 +59,17 @@ export class App extends Component {
   constructor() {
     super();
 
+    this.toggleIcons = (event, data) => {
+      this.setState({
+        visibleIcons: data.checked
+      });
+    }
+    this.toggleGrid = (event, data) => {
+      this.setState({
+        visibleGrid: data.checked
+      });
+    }
+
     this.handleClick = (event) => {
       switch (event.target.id) {
         case 'picker0': this.setState({ displayColorPicker0: !this.state.displayColorPicker0 }); break;
@@ -79,6 +91,8 @@ export class App extends Component {
     };
 
     this.state = {
+      visibleGrid: true,
+      visibleIcons: true,
       gridCellSize: 250,
       displayColorPicker0: false,
       color0: { r: 0, g: 112, b: 19, a: 1 },
@@ -86,6 +100,19 @@ export class App extends Component {
       color1: { r: 241, g: 112, b: 19, a: 1 },
       tooltipText: '',
     };
+  }
+
+  _renderColorPicker(index, style) {
+    return [
+      <div className="color-picker" id={'picker' + index} onClick={this.handleClick}>
+        <div className="color-picker-preview" style={style} />
+      </div>,
+      this.state['displayColorPicker' + index] ?
+        (<div className="popover">
+          <div className="cover" onClick={this.handleClose} />
+          <SketchPicker color={this.state['color' + index]} onChange={this['handleChange' + index]} />
+        </div>) : null
+    ];
   }
 
   _renderLayers() {
@@ -100,6 +127,7 @@ export class App extends Component {
 
     return [
       new GridLayer({
+        visible: this.state.visibleGrid,
         id: 'grid',
         data: many_random_points,
         pickable: true,
@@ -115,6 +143,7 @@ export class App extends Component {
         }
       }),
       new IconLayer({
+        visible: this.state.visibleIcons,
         id: 'icon',
         data: few_random_points,
         pickable: true,
@@ -168,24 +197,14 @@ export class App extends Component {
       <div>
         <div id="control-panel">
           <div>
-            <label>Color for min value: </label>
-            <div className="color-picker" id="picker0" onClick={this.handleClick}>
-              <div className="color-picker-preview" style={styles.color0} />
-            </div>
-            {this.state.displayColorPicker0 ? <div className="popover">
-              <div className="cover" onClick={this.handleClose} />
-              <SketchPicker color={this.state.color0} onChange={this.handleChange0} />
-            </div> : null}
+            <Checkbox toggle defaultChecked label={{ children: 'Show POIs' }} onChange={this.toggleIcons} />
           </div>
           <div>
-            <label>Color for max value: </label>
-            <div className="color-picker" id="picker1" onClick={this.handleClick}>
-              <div className="color-picker-preview" style={styles.color1} />
-            </div>
-            {this.state.displayColorPicker1 ? <div className="popover">
-              <div className="cover" onClick={this.handleClose} />
-              <SketchPicker color={this.state.color1} onChange={this.handleChange1} />
-            </div> : null}
+            <Checkbox toggle defaultChecked label={{ children: 'Show heatmap' }} onChange={this.toggleGrid} />
+          </div>
+          <div>
+            {this._renderColorPicker(0, styles.color0)}
+            {this._renderColorPicker(1, styles.color1)}
           </div>
           <div>
             Current value: {this.state.tooltipText ? this.state.tooltipText : ''}
