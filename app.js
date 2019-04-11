@@ -5,7 +5,6 @@ import {StaticMap} from 'react-map-gl';
 import DeckGL, {GridLayer, IconLayer} from 'deck.gl';
 import {isWebGL2} from 'luma.gl';
 import {SketchPicker} from 'react-color';
-import {AST_LabelRef} from 'terser';
 
 // Mapbox token
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
@@ -80,6 +79,7 @@ export class App extends Component {
     };
 
     this.state = {
+      gridCellSize: 250,
       displayColorPicker0: false,
       color0: { r: 0, g: 112, b: 19, a: 1 },
       displayColorPicker1: false,
@@ -90,7 +90,6 @@ export class App extends Component {
 
   _renderLayers() {
     const {
-      cellSize = 250,
       iconMapping = 'data/location-icon-mapping.json',
       iconAtlas = 'data/location-icon-atlas.png',
     } = this.props;
@@ -104,10 +103,11 @@ export class App extends Component {
         id: 'grid',
         data: many_random_points,
         pickable: true,
-        cellSize: cellSize,
+        autoHighlight: true,
+        cellSize: this.state.gridCellSize,
         extruded: false,
-        getPosition: d => d,
         colorRange: interpolateColors(color0, color1, 8),
+        getPosition: d => d,
         onHover: d => {
           this.setState({
             tooltipText: d.object.count,
@@ -118,6 +118,7 @@ export class App extends Component {
         id: 'icon',
         data: few_random_points,
         pickable: true,
+        autoHighlight: true,
         iconAtlas,
         iconMapping,
         getIcon: d => 'marker-1',
@@ -138,6 +139,14 @@ export class App extends Component {
       if (this.props.disableGPUAggregation) {
         this.props.disableGPUAggregation();
       }
+    }
+  }
+
+  _onViewStateChange({ viewState, interactionState, oldViewState }) {
+    if (viewState.zoom < 11) {
+      this.setState({ gridCellSize: 500 });
+    } else {
+      this.setState({ gridCellSize: 250 });
     }
   }
 
@@ -187,6 +196,7 @@ export class App extends Component {
           initialViewState={INITIAL_VIEW_STATE}
           onWebGLInitialized={this._onInitialized.bind(this)}
           viewState={viewState}
+          onViewStateChange={this._onViewStateChange.bind(this)}
           controller={controller}
         >
           {baseMap && (
