@@ -115,8 +115,8 @@ export class App extends Component {
 
   _renderLayers() {
     const {
-      iconMapping = 'location-icon-mapping.json',
-      iconAtlas = 'location-icon-atlas.png',
+      iconMapping = 'data/location-icon-mapping.json',
+      iconAtlas = 'data/location-icon-atlas.png',
     } = this.props;
     let color0 = Object.values(this.state.color0);
     color0[3] *= 255;

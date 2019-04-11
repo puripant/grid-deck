@@ -6,6 +6,7 @@ const resolve = require('path').resolve;
 const webpack = require('webpack');
 // const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const CONFIG = {
   mode: 'development',
@@ -39,13 +40,13 @@ const CONFIG = {
       //   ],
       // },
       // {
-      //   test: /\.png$/,
+      //   test: /\.(png|json)$/,
       //   exclude: /(node_modules)/,
       //   use: [
       //     { loader: 'file-loader' },
       //   ],
       // },
-    ]
+    ],
   },
 
   // Optional: Enables reading mapbox token from environment variable
@@ -54,7 +55,10 @@ const CONFIG = {
     // new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
-    })
+    }),
+    new CopyWebpackPlugin([
+      { from: 'data', to: 'data' }
+    ])
   ]
 };
 
